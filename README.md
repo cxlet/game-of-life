@@ -1,6 +1,10 @@
-# life-game
+# game-of-life
 
-> An electron-vue project
+>![screenshots](https://raw.githubusercontent.com/cxlet/game-of-life/master/build/screenshots/WX20180616-161315@2x.png)
+
+#### About Game of Life
+
+>[Wikipedia] https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 #### Build Setup
 
