@@ -1,7 +1,7 @@
 {
-  "name": "life-game",
-  "version": "0.1.0",
-  "author": "zhangcunxing <zhangcunxing@dongsport.com>",
+  "name": "game-of-life",
+  "version": "1.0.0",
+  "author": "Cunxing Zhang",
   "description": "An electron-vue Demo",
   "license": "MIT",
   "main": "./dist/electron/main.js",
