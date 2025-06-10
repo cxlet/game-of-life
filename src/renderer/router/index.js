@@ -1,10 +1,6 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-Vue.use(Router)
-
-export default new Router({
-  routes: [
+const routes = [
     // {
     //   path: '/',
     //   name: 'landing-page',
@@ -19,5 +15,11 @@ export default new Router({
       path: '*',
       redirect: '/'
     }
-  ]
+]
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
 })
+
+export default router
