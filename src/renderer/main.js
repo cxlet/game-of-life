@@ -1,18 +1,20 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import axios from 'axios'
 
 import App from './App'
 import router from './router'
 import store from './store'
 
-if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
-Vue.http = Vue.prototype.$http = axios
-Vue.config.productionTip = false
+const app = createApp(App)
 
-/* eslint-disable no-new */
-new Vue({
-  components: { App },
-  router,
-  store,
-  template: '<App/>'
-}).$mount('#app')
+if (!process.env.IS_WEB) {
+  app.use(require('vue-electron'))
+}
+
+app.config.globalProperties.$http = axios
+app.config.productionTip = false
+
+app.use(router)
+app.use(store)
+
+app.mount('#app')
