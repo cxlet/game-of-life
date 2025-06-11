@@ -7,10 +7,6 @@ import store from './store'
 
 const app = createApp(App)
 
-if (!process.env.IS_WEB) {
-  app.use(require('vue-electron'))
-}
-
 app.config.globalProperties.$http = axios
 app.config.productionTip = false
 
