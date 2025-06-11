@@ -727,15 +727,10 @@ babel-core@^6.24.1, babel-core@^6.25.0, babel-core@^6.26.0, babel-core@~6:
     slash "^1.0.0"
     source-map "^0.5.7"
 
-babel-eslint@^7.2.3:
-  version "7.2.3"
-  resolved "https://registry.npmmirror.com/babel-eslint/download/babel-eslint-7.2.3.tgz#b2fe2d80126470f5c19442dc757253a897710827"
-  integrity sha1-sv4tgBJkcPXBlELcdXJTqJdxCCc=
-  dependencies:
-    babel-code-frame "^6.22.0"
-    babel-traverse "^6.23.1"
-    babel-types "^6.23.0"
-    babylon "^6.17.0"
+"@babel/eslint-parser@^7.22.15":
+  version "7.22.15"
+  resolved "https://registry.npmmirror.com/@babel/eslint-parser/download/@babel/eslint-parser-7.22.15.tgz"
+  integrity sha512-PLACEHOLDER
 
 babel-generator@^6.18.0, babel-generator@^6.26.0:
   version "6.26.1"
@@ -4002,16 +3997,7 @@ eslint-import-resolver-node@^0.3.4:
     debug "^2.6.9"
     resolve "^1.13.1"
 
-eslint-loader@^1.9.0:
-  version "1.9.0"
-  resolved "https://registry.npmmirror.com/eslint-loader/download/eslint-loader-1.9.0.tgz#7e1be9feddca328d3dcfaef1ad49d5beffe83a13"
-  integrity sha1-fhvp/t3KMo09z67xrUnVvv/oOhM=
-  dependencies:
-    loader-fs-cache "^1.0.0"
-    loader-utils "^1.0.2"
-    object-assign "^4.0.1"
-    object-hash "^1.1.4"
-    rimraf "^2.6.1"
+
 
 eslint-module-utils@^2.6.0:
   version "2.6.0"
@@ -4063,10 +4049,7 @@ eslint-plugin-promise@^3.5.0:
   resolved "https://registry.npmmirror.com/eslint-plugin-promise/download/eslint-plugin-promise-3.8.0.tgz#65ebf27a845e3c1e9d6f6a5622ddd3801694b621"
   integrity sha1-ZevyeoRePB6db2pWIt3TgBaUtiE=
 
-eslint-plugin-standard@^3.0.1:
-  version "3.1.0"
-  resolved "https://registry.npmmirror.com/eslint-plugin-standard/download/eslint-plugin-standard-3.1.0.tgz#2a9e21259ba4c47c02d53b2d0c9135d4b1022d47"
-  integrity sha1-Kp4hJZukxHwC1TstDJE11LECLUc=
+
 
 eslint-scope@^3.7.1:
   version "3.7.3"
@@ -10555,3 +10538,8 @@ zip-stream@^1.2.0:
     compress-commons "^1.2.0"
     lodash "^4.8.0"
     readable-stream "^2.0.0"
+
+eslint-webpack-plugin@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npmmirror.com/eslint-webpack-plugin/download/eslint-webpack-plugin-4.0.1.tgz"
+  integrity sha512-PLACEHOLDER
