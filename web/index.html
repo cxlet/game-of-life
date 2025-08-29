@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game of Life</title>
+  <script src="https://unpkg.com/vue@3.5.16/dist/vue.global.prod.js"></script>
+  <style>
+    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+    .grid { display: grid; grid-template-columns: repeat(25, 20px); }
+    .cell { width: 20px; height: 20px; border: 1px solid #ccc; }
+    .alive { background: #333; }
+    button { margin: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="controls">
+      <button @click="randomize">Random</button>
+      <button v-if="!running" @click="start">Start</button>
+      <button v-else @click="stop">Stop</button>
+      <button @click="step">Step</button>
+      <button @click="clear">Clear</button>
+    </div>
+    <div class="grid">
+      <template v-for="(row, r) in grid" :key="r">
+        <div v-for="(cell, c) in row" :key="c" class="cell" :class="{alive: cell}" @click="toggle(r, c)"></div>
+      </template>
+    </div>
+  </div>
+  <script type="module">
+    const size = 25;
+    const app = Vue.createApp({
+      data() {
+        return {
+          grid: Array.from({ length: size }, () => Array(size).fill(false)),
+          running: false,
+          timer: null,
+        };
+      },
+      methods: {
+        toggle(r, c) {
+          this.grid[r][c] = !this.grid[r][c];
+        },
+        neighbors(r, c) {
+          let count = 0;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const nr = r + dr;
+              const nc = c + dc;
+              if (nr >= 0 && nr < size && nc >= 0 && nc < size && this.grid[nr][nc]) {
+                count++;
+              }
+            }
+          }
+          return count;
+        },
+        step() {
+          const next = this.grid.map((row, r) =>
+            row.map((cell, c) => {
+              const n = this.neighbors(r, c);
+              if (cell) {
+                return n === 2 || n === 3;
+              } else {
+                return n === 3;
+              }
+            })
+          );
+          this.grid = next;
+        },
+        start() {
+          if (this.running) return;
+          this.running = true;
+          this.timer = setInterval(this.step, 200);
+        },
+        stop() {
+          this.running = false;
+          clearInterval(this.timer);
+        },
+        clear() {
+          this.stop();
+          this.grid = Array.from({ length: size }, () => Array(size).fill(false));
+        },
+        randomize() {
+          this.grid = Array.from({ length: size }, () =>
+            Array.from({ length: size }, () => Math.random() < 0.3)
+          );
+        }
+      }
+    });
+    app.mount('#app');
+  </script>
+</body>
+</html>

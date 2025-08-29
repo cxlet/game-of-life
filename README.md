@@ -6,6 +6,10 @@
 
 >[Wikipedia] https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
+## Vue 3 Web Version
+
+A new implementation using the latest stable Vue (3.5.16) lives in `web/index.html`. Open this file in a modern browser to play the game.
+
 #### Build Setup
 
 ``` bash
