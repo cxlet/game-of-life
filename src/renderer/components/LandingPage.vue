@@ -31,13 +31,14 @@
 
 <script>
   import SystemInformation from './LandingPage/SystemInformation'
+  import { shell } from 'electron'
 
   export default {
     name: 'landing-page',
     components: { SystemInformation },
     methods: {
       open (link) {
-        this.$electron.shell.openExternal(link)
+        shell.openExternal(link)
       }
     }
   }
