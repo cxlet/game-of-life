@@ -7,14 +7,13 @@ const { say } = require('cfonts')
 const { spawn } = require('child_process')
 const webpack = require('webpack')
 const WebpackDevServer = require('webpack-dev-server')
-const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
 
 let electronProcess = null
 let manualRestart = false
-let hotMiddleware
+let server
 
 function logStats (proc, data) {
   let log = ''
@@ -40,40 +39,31 @@ function logStats (proc, data) {
 
 function startRenderer () {
   return new Promise((resolve, reject) => {
-    rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
-
+    // Ensure dev server serves index and enables HMR
     const compiler = webpack(rendererConfig)
-    hotMiddleware = webpackHotMiddleware(compiler, { 
-      log: false, 
-      heartbeat: 2500 
-    })
 
-    compiler.plugin('compilation', compilation => {
-      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
-        hotMiddleware.publish({ action: 'reload' })
-        cb()
-      })
-    })
-
-    compiler.plugin('done', stats => {
+    compiler.hooks.done.tap('renderer-done', stats => {
       logStats('Renderer', stats)
+      resolve()
     })
 
-    const server = new WebpackDevServer(
-      compiler,
-      {
-        contentBase: path.join(__dirname, '../'),
-        quiet: true,
-        before (app, ctx) {
-          app.use(hotMiddleware)
-          ctx.middleware.waitUntilValid(() => {
-            resolve()
-          })
-        }
+    const options = {
+      static: {
+        directory: path.join(__dirname, '../')
+      },
+      hot: true,
+      port: 9080,
+      client: {
+        logging: 'none',
+        overlay: false
+      },
+      devMiddleware: {
+        stats: 'errors-warnings'
       }
-    )
+    }
 
-    server.listen(9080)
+    server = new WebpackDevServer(options, compiler)
+    server.start().catch(reject)
   })
 }
 
@@ -83,10 +73,8 @@ function startMain () {
 
     const compiler = webpack(mainConfig)
 
-    compiler.plugin('watch-run', (compilation, done) => {
+    compiler.hooks.watchRun.tap('main-watch-run', () => {
       logStats('Main', chalk.white.bold('compiling...'))
-      hotMiddleware.publish({ action: 'compiling' })
-      done()
     })
 
     compiler.watch({}, (err, stats) => {
@@ -114,7 +102,12 @@ function startMain () {
 }
 
 function startElectron () {
-  electronProcess = spawn(electron, ['--inspect=5858', '.'])
+  const args = []
+  if (process.env.INSPECT_MAIN !== '0') {
+    args.push('--inspect=5858')
+  }
+  args.push('.')
+  electronProcess = spawn(electron, args)
 
   electronProcess.stdout.on('data', data => {
     electronLog(data, 'blue')
@@ -132,6 +125,9 @@ function electronLog (data, color) {
   let log = ''
   data = data.toString().split(/\r?\n/)
   data.forEach(line => {
+    // filter Node inspector boilerplate when not needed
+    if (/^Debugger listening on /.test(line)) return
+    if (/^For help, see: https:\/\/nodejs\.org\/en\/docs\/inspector/.test(line)) return
     log += `  ${line}\n`
   })
   if (/[0-9A-z]+/.test(log)) {

@@ -5,12 +5,12 @@ process.env.BABEL_ENV = 'main'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
-const ESLintPlugin = require('eslint-webpack-plugin')
 
 let mainConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: {
-    main: path.join(__dirname, '../src/main/index.js')
+    main: path.join(__dirname, '../src/main/index.js'),
+    preload: path.join(__dirname, '../src/main/preload.js')
   },
   externals: [
     ...Object.keys(dependencies || {})
@@ -19,12 +19,14 @@ let mainConfig = {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader',
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: path.resolve(__dirname, '../babel.config.cjs')
+          }
+        },
         exclude: /node_modules/
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader'
       }
     ]
   },
@@ -38,9 +40,6 @@ let mainConfig = {
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
-    new ESLintPlugin({
-      extensions: ['js']
-    }),
     new webpack.NoEmitOnErrorsPlugin()
   ],
   resolve: {

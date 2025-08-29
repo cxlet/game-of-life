@@ -1,6 +1,9 @@
 'use strict'
 
 import { app, BrowserWindow } from 'electron'
+import path from 'path'
+import fs from 'fs'
+import { format as formatUrl } from 'url'
 
 /**
  * Set `__static` path to static files in production
@@ -13,19 +16,31 @@ if (process.env.NODE_ENV !== 'development') {
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080'
-  : `file://${__dirname}/index.html`
+  : formatUrl({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  })
 
 function createWindow () {
   /**
    * Initial window options
    */
+  // Prefer compiled preload in dist/electron during development
+  let preloadPath = path.join(app.getAppPath(), 'dist/electron/preload.js')
+  if (!fs.existsSync(preloadPath)) {
+    preloadPath = path.resolve(__dirname, 'preload.js')
+  }
+  // eslint-disable-next-line no-console
+  console.log('[main] preload path:', preloadPath)
   mainWindow = new BrowserWindow({
     height: 1600,
     useContentSize: true,
     width: 2560,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: preloadPath
     }
   })
 

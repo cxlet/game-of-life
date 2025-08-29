@@ -5,7 +5,6 @@ process.env.BABEL_ENV = 'renderer'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
-const ESLintPlugin = require('eslint-webpack-plugin')
 
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -19,11 +18,13 @@ const { VueLoaderPlugin } = require('vue-loader')
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
-let whiteListedModules = ['vue']
+// Bundle these deps into the renderer to avoid `require` at runtime
+// because we run with `nodeIntegration: false`.
+let whiteListedModules = ['vue', 'vue-router', 'vuex', 'axios']
 
 let rendererConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  devtool: '#cheap-module-eval-source-map',
+  devtool: 'eval-cheap-module-source-map',
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js')
   },
@@ -40,49 +41,39 @@ let rendererConfig = {
         ]
       },
       {
+        test: /\.vue$/,
+        use: [ { loader: 'vue-loader' } ]
+      },
+      {
         test: /\.html$/,
         use: 'html-loader'
       },
       {
         test: /\.js$/,
-        use: 'babel-loader',
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: path.resolve(__dirname, '../babel.config.cjs')
+          }
+        },
         exclude: /node_modules/
       },
       {
-        test: /\.node$/,
-        use: 'node-loader'
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: 'asset',
+        parser: { dataUrlCondition: { maxSize: 10 * 1024 } },
+        generator: { filename: 'imgs/[name][ext]' }
       },
       {
-        test: /\.vue$/,
-        use: { loader: 'vue-loader' }
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)$/i,
+        type: 'asset/resource',
+        generator: { filename: 'media/[name][ext]' }
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-            name: 'imgs/[name]--[folder].[ext]'
-          }
-        }
-      },
-      {
-        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: 'media/[name]--[folder].[ext]'
-        }
-      },
-      {
-        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-            name: 'fonts/[name]--[folder].[ext]'
-          }
-        }
+        test: /\.(woff2?|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+        generator: { filename: 'fonts/[name][ext]' }
       }
     ]
   },
@@ -91,9 +82,6 @@ let rendererConfig = {
     __filename: process.env.NODE_ENV !== 'production'
   },
   plugins: [
-    new ESLintPlugin({
-      extensions: ['js', 'vue']
-    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -102,13 +90,14 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules: process.env.NODE_ENV !== 'production'
-        ? path.resolve(__dirname, '../node_modules')
-        : false
+      nodeModules: false
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      global: 'globalThis'
+    })
   ],
   output: {
     filename: '[name].js',
@@ -120,9 +109,12 @@ let rendererConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm-bundler.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', '.vue', '.json', '.css', '.node'],
+    fallback: {
+      events: require.resolve('events/')
+    }
   },
-  target: 'electron-renderer'
+  target: 'web'
 }
 
 /**
@@ -144,13 +136,17 @@ if (process.env.NODE_ENV === 'production') {
 
   rendererConfig.plugins.push(
     new MiniCssExtractPlugin({ filename: 'styles.css' }),
-    new CopyWebpackPlugin([
-      {
-        from: path.join(__dirname, '../static'),
-        to: path.join(__dirname, '../dist/electron/static'),
-        ignore: ['.*']
-      }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.join(__dirname, '../static'),
+          to: path.join(__dirname, '../dist/electron/static'),
+          globOptions: {
+            ignore: ['**/.*']
+          }
+        }
+      ]
+    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     }),

@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <img id="logo" src="~@/assets/logo.png" alt="electron-vue">
+    <img id="logo" src="@/assets/logo.png" alt="electron-vue">
     <main>
       <div class="left-side">
         <span class="title">
@@ -31,14 +31,15 @@
 
 <script>
   import SystemInformation from './LandingPage/SystemInformation'
-  import { shell } from 'electron'
 
   export default {
     name: 'landing-page',
     components: { SystemInformation },
     methods: {
       open (link) {
-        shell.openExternal(link)
+        if (window.api && typeof window.api.openExternal === 'function') {
+          window.api.openExternal(link)
+        }
       }
     }
   }

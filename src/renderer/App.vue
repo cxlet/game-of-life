@@ -12,5 +12,5 @@
 
 <style>
   /* CSS */
-  @import url(~@/assets/css/buttons.css);
+  @import url(@/assets/css/buttons.css);
 </style>

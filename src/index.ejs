@@ -3,19 +3,16 @@
   <head>
     <meta charset="utf-8">
     <title>lgame-of-life</title>
-    <% if (htmlWebpackPlugin.options.nodeModules) { %>
-      <!-- Add `node_modules/` to global paths so `require` works properly in development -->
-      <script>
-        require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
-      </script>
-    <% } %>
   </head>
   <body>
-    <div id="app"></div>
-    <!-- Set `__static` path to static files in production -->
     <script>
-      if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+      // Define global early for libraries that expect Node's global
+      if (typeof window !== 'undefined' && typeof window.global === 'undefined') {
+        window.global = window
+      }
     </script>
+    <div id="app"></div>
+    <!-- No Node APIs in renderer; avoid require/process here -->
 
     <!-- webpack builds are automatically injected -->
   </body>

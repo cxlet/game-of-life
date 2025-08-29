@@ -1,4 +1,8 @@
 import { createApp } from 'vue'
+// Ensure some Node-ish globals for third-party browser builds
+if (typeof window !== 'undefined' && typeof window.global === 'undefined') {
+  window.global = window
+}
 import axios from 'axios'
 
 import App from './App'

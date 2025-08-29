@@ -31,15 +31,17 @@
 </template>
 
 <script>
+  import { version as vueVersion } from 'vue'
+
   export default {
     data () {
       return {
-        electron: process.versions['atom-shell'],
+        electron: (window.env && window.env.versions && (window.env.versions.electron || window.env.versions['atom-shell'])) || '',
         name: this.$route.name,
-        node: process.versions.node,
+        node: (window.env && window.env.versions && window.env.versions.node) || '',
         path: this.$route.path,
-        platform: require('os').platform(),
-        vue: require('vue/package.json').version
+        platform: (window.env && window.env.platform) || '',
+        vue: vueVersion
       }
     }
   }

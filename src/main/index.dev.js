@@ -7,21 +7,17 @@
 
 /* eslint-disable */
 
-// Set environment for development
-process.env.NODE_ENV = 'development'
+// Ensure development tools only in development mode.
+// Do not assign to process.env.NODE_ENV here; webpack defines it based on mode.
 
-// Install `electron-debug` with `devtron`
-require('electron-debug')({ showDevTools: true })
+// Install `electron-debug` (optional)
+try {
+  require('electron-debug')({ showDevTools: true })
+} catch (_) {
+  // optional
+}
 
-// Install `vue-devtools`
-require('electron').app.on('ready', () => {
-  let installExtension = require('electron-devtools-installer')
-  installExtension.default(installExtension.VUEJS_DEVTOOLS)
-    .then(() => {})
-    .catch(err => {
-      console.log('Unable to install `vue-devtools`: \n', err)
-    })
-})
+// Vue Devtools: optional; extension installs are managed manually in modern setups
 
 // Require `main` process to boot app
 require('./index')

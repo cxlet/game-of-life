@@ -7,6 +7,6 @@ describe('LandingPage.vue', () => {
     const app = createApp(LandingPage)
     const vm = app.mount(container)
 
-    expect(vm.$el.querySelector('.title').textContent).to.contain('Welcome to your new project!')
+    expect(vm.$el.querySelector('.title').textContent).toContain('Welcome to your new project!')
   })
 })

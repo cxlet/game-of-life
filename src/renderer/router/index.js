@@ -12,7 +12,7 @@ const routes = [
     component: require('@/components/CanvasPage').default
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     redirect: '/'
   }
 ]
