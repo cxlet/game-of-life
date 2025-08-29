@@ -7,9 +7,8 @@ const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 const ESLintPlugin = require('eslint-webpack-plugin')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
-
 let mainConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
   },
@@ -66,7 +65,6 @@ if (process.env.NODE_ENV !== 'production') {
  */
 if (process.env.NODE_ENV === 'production') {
   mainConfig.plugins.push(
-    new BabiliWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     })

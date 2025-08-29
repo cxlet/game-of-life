@@ -7,10 +7,9 @@ const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 const ESLintPlugin = require('eslint-webpack-plugin')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 
 /**
@@ -23,6 +22,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 let whiteListedModules = ['vue']
 
 let rendererConfig = {
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   devtool: '#cheap-module-eval-source-map',
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js')
@@ -34,14 +34,14 @@ let rendererConfig = {
     rules: [
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: 'css-loader'
-        })
+        use: [
+          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          'css-loader'
+        ]
       },
       {
         test: /\.html$/,
-        use: 'vue-html-loader'
+        use: 'html-loader'
       },
       {
         test: /\.js$/,
@@ -54,16 +54,7 @@ let rendererConfig = {
       },
       {
         test: /\.vue$/,
-        use: {
-          loader: 'vue-loader',
-          options: {
-            extractCSS: process.env.NODE_ENV === 'production',
-            loaders: {
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-style-loader!css-loader!sass-loader'
-            }
-          }
-        }
+        use: { loader: 'vue-loader' }
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -103,7 +94,6 @@ let rendererConfig = {
     new ESLintPlugin({
       extensions: ['js', 'vue']
     }),
-    new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -153,7 +143,7 @@ if (process.env.NODE_ENV === 'production') {
   rendererConfig.devtool = ''
 
   rendererConfig.plugins.push(
-    new BabiliWebpackPlugin(),
+    new MiniCssExtractPlugin({ filename: 'styles.css' }),
     new CopyWebpackPlugin([
       {
         from: path.join(__dirname, '../static'),
